@@ -1,4 +1,0 @@
-from isrun import isrun
-
-if __name__ == '__main__':
-    isrun.main()

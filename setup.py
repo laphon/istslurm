@@ -2,11 +2,11 @@
 
 from setuptools import setup, find_packages
 
-setup(name='isrun',
+setup(name='istslurm',
         version='0.0.1',
         description='IST server run',
         author='laphon',
         packages=find_packages(),
-        scripts=['bin/isrun'],
+        scripts=['bin/istslurm'],
         install_requires=['sh', 'paramiko'],
         )

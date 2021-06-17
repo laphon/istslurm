@@ -1,0 +1,4 @@
+from istslurm import istslurm
+
+if __name__ == '__main__':
+    istslurm.main()
