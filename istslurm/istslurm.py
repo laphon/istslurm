@@ -8,7 +8,6 @@ import sh
 
 def mntinfo():
     local_dir = os.getcwd()
-    #sh_sudo = sh.sudo.bake("-S", _in=PASSWORD)
     info = str(sh.findmnt("-T", local_dir)).split()
     target = info[4]
     src = info[5]
@@ -18,9 +17,10 @@ def mntinfo():
 def remote_path():
     local_dir = os.getcwd()
     info = mntinfo()
-    print(info)
     rel_dir = local_dir.replace(info['target'], '')
     abs_dir = info['src'].split(':')[1] + rel_dir[1:]
+    if len(info['src'].split(':')[1]) == 0:
+    	abs_dir = '/ist/users/' + info['src'].split('@')[0] + '/' + rel_dir[1:]
     return abs_dir
 
 
@@ -76,12 +76,14 @@ def main():
     	print('SBATCH:\tistslurm <host> -sbatch "<executable command>" <sbatch arguments>\n')
     	print('\nOptional: add --key <path to a private key> in case an identity file is required\n')
     elif option == "-sinfo":
-        os.system(f'sudo ssh {key_input} {host} -t "sinfo"')
+    	sinfo = ' '.join(argv[2:])[1:]
+    	os.system(f'sudo ssh {key_input} {host} -t "{sinfo}"')
     elif option == "-squeue":
-        os.system(f'sudo ssh {key_input} {host} -t "squeue"')
+    	squeue = ' '.join(argv[2:])[1:]
+    	os.system(f'sudo ssh {key_input} {host} -t "{squeue}"')
     elif option == "-scancel":
-    	job_id = argv[2]
-    	os.system(f'sudo ssh {key_input} {host} -t "scancel {job_id}"')
+    	scancel = ' '.join(argv[2:])[1:]
+    	os.system(f'sudo ssh {key_input} {host} -t "{scancel}"')
     elif option == "-srun":
         env = get_arg(argv, "--env")
         srun_command = 'srun ' + ' '.join(argv[3:]) + ';'
