@@ -70,7 +70,12 @@ def main():
         key_input = "-i " + key_path
     host = argv[1]
     option = argv[2]
-    if option == "-sinfo":
+    if '-h' in argv:
+    	print('Job Submission Commands (run in a mounted directory):\n')
+    	print('SRUN:\tistslurm <host> -srun <srun arguments> <executable commands>')
+    	print('SBATCH:\tistslurm <host> -sbatch "<executable command>" <sbatch arguments>\n')
+    	print('\nOptional: add --key <path to a private key> in case an identity file is required\n')
+    elif option == "-sinfo":
         os.system(f'sudo ssh {key_input} {host} -t "sinfo"')
     elif option == "-squeue":
         os.system(f'sudo ssh {key_input} {host} -t "squeue"')
@@ -86,7 +91,6 @@ def main():
         os.system(f'sudo ssh {key_input} {host} -t "{command}"')
     elif option == "-sbatch":
     	env = get_arg(argv, "--env")
-    	cd_command = f"cd {remote_path()}"
     	command = f'. /ist/apps/modules/software/Anaconda3/5.3.0/etc/profile.d/conda.sh;\n conda activate /ist/ist-share/robotics/laphonp/envs/{env};\n{argv[3]}'
     	sbatch_file = create_sbatch_script(argv[4:], command)
     	print(f"\nSBATCH SCRIPT: \n\n{sbatch_file}\n\n")
