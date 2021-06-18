@@ -8,8 +8,8 @@ import sh
 
 def mntinfo():
     local_dir = os.getcwd()
-    sh_sudo = sh.sudo.bake("-S", _in=PASSWORD)
-    info = str(sh_sudo.findmnt("-T", local_dir)).split()
+    #sh_sudo = sh.sudo.bake("-S", _in=PASSWORD)
+    info = str(sh.findmnt("-T", local_dir)).split()
     target = info[4]
     src = info[5]
     return {"target": target, "src": src}
@@ -32,18 +32,22 @@ def get_host_info():
     return {"username": username, "hostname": hostname}
 
 
-def getArg(argv, opt):
+def get_arg(argv, opt):
     arg = argv[argv.index(opt) + 1]
     argv.remove(opt)
     argv.remove(arg)
     return arg
 
 
-def getConfig():
-    return json.load(open("./config.json"))
-    #return {"key_path": "/home/laphon/my-pc/vistec/vistec_id_rsa", "host": "laphonp@10.204.100.209"}
+def create_sbatch_script(argv, command):
+    sbatch_file = "#!/bin/sh\n"
+    for i in range(0, len(argv), 2):
+        sbatch_file += "#SBATCH " + argv[i] + "=" + argv[i + 1] + "\n"
+    sbatch_file += "cd " + remote_path() + "\n"
+    sbatch_file += command
+    return sbatch_file
 
-
+'''
 def run(command):
     process = Popen(command, stderr=PIPE, stdout=PIPE, shell=True)
     while True:
@@ -56,37 +60,37 @@ def run(command):
         if not line:
             break
         print(line.decode())
-    
+'''
+ 
 def main():
-    print(getConfig()["host"])
-    print(os.getcwd() + '\n')
-    print(sys.path[0] + '\n')
-    #PASSWORD = getpass(f"(sudo) password for {getuser()}: ")
     argv = sys.argv
-    option = argv[1]
-    print(option)
-    if option == "-config":
-        config = json.load(open("config.json"))
-        key_path = getArg(argv, '--key')
-        host = getArg(argv, '--host')
-        config["key_path"] = key_path
-        config["host"] = host
-        with open('config.json', 'w') as outfile:
-            json.dump(config, outfile)
-    elif option == "-sinfo":
-        print("SINFO")
-        os.system(f'sudo -S ssh -i {getConfig()["key_path"]} {getConfig()["host"]} -t "sinfo"')
+    key_input = ""
+    if "--key" in argv:
+        key_path = get_arg(argv, "--key")
+        key_input = "-i " + key_path
+    host = argv[1]
+    option = argv[2]
+    if option == "-sinfo":
+        os.system(f'sudo ssh {key_input} {host} -t "sinfo"')
     elif option == "-squeue":
-        os.system(f'sudo -S ssh -i {getConfig()["key_path"]} {getConfig()["host"]} -t "squeue"')
+        os.system(f'sudo ssh {key_input} {host} -t "squeue"')
     elif option == "-scancel":
     	job_id = argv[2]
-    	os.system(f'sudo -S ssh -i {getConfig()["key_path"]} {getConfig()["host"]} -t "scancel {job_id}"')
+    	os.system(f'sudo ssh {key_input} {host} -t "scancel {job_id}"')
     elif option == "-srun":
-        env = getArg(argv, "--env")
-        srun_command = 'srun ' + ' '.join(argv[2:]) + ';'
+        env = get_arg(argv, "--env")
+        srun_command = 'srun ' + ' '.join(argv[3:]) + ';'
         cd_command = f"cd {remote_path()}"
         command = f'. /ist/apps/modules/software/Anaconda3/5.3.0/etc/profile.d/conda.sh; conda activate /ist/ist-share/robotics/laphonp/envs/{env};{cd_command};{srun_command}'
-        os.system(f'sudo -S ssh -i {getConfig()["key_path"]} {getConfig()["host"]} -t "{command}"')
+        print(f'sudo ssh {key_input} {host} -t "{command}"')
+        os.system(f'sudo ssh {key_input} {host} -t "{command}"')
+    elif option == "-sbatch":
+    	env = get_arg(argv, "--env")
+    	cd_command = f"cd {remote_path()}"
+    	command = f'. /ist/apps/modules/software/Anaconda3/5.3.0/etc/profile.d/conda.sh;\n conda activate /ist/ist-share/robotics/laphonp/envs/{env};\n{argv[3]}'
+    	sbatch_file = create_sbatch_script(argv[4:], command)
+    	print(f"\nSBATCH SCRIPT: \n\n{sbatch_file}\n\n")
+    	os.system(f'sudo ssh {key_input} {host} -t "sbatch <<< ' + f"'{sbatch_file}'\"")
 
 if __name__ == "__main__":
     main()
