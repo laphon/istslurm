@@ -70,7 +70,7 @@ def main():
     conda_activate = ''
     if "--env" in argv:
         env = get_arg(argv, "--env")
-        conda_activate = f'. /ist/apps/modules/software/Anaconda3/5.3.0/etc/profile.d/conda.sh; conda activate /ist/ist-share/robotics/laphonp/envs/{env};'
+        conda_activate = f'. /ist/apps/modules/software/Anaconda3/5.3.0/etc/profile.d/conda.sh; conda activate /ist/ist-share/robotics/envs/{env};'
     host = argv[1]
     option = argv[2]
     if '-h' in argv:
@@ -93,10 +93,11 @@ def main():
         print(f'sudo ssh {key_input} {host} -t "{command}"')
         os.system(f'sudo ssh {key_input} {host} -t "{conda_activate} {cd_command} {srun_command}"')
     elif option == "sbatch":
+    	cd_command = f"cd {remote_path()};"
     	command = f'{conda_activate}\n{cd_command}\n{argv[-1]}\n'
     	sbatch_file = create_sbatch_script(argv[3:-1], command)
     	print(f"\nSBATCH SCRIPT: \n\n{sbatch_file}\n\n")
     	os.system(f'sudo ssh {key_input} {host} -t "sbatch <<< ' + f"'{sbatch_file}'\"")
-kk-
+
 if __name__ == "__main__":
     main()
