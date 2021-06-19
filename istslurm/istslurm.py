@@ -67,17 +67,19 @@ def main():
     if "--key" in argv:
         key_path = get_arg(argv, "--key")
         key_input = "-i " + key_path
-    conda_activate = ''
+    conda_activate = '. /ist/apps/modules/software/Anaconda3/5.3.0/etc/profile.d/conda.sh;'
     if "--env" in argv:
         env = get_arg(argv, "--env")
-        conda_activate = f'. /ist/apps/modules/software/Anaconda3/5.3.0/etc/profile.d/conda.sh; conda activate /ist/ist-share/robotics/envs/{env};'
+        if env[0] != '/':
+            conda_activate += f' conda activate /ist/ist-share/robotics/envs/{env};'
+        else:
+            conda_activate += f' conda activate {env};'
     host = argv[1]
     option = argv[2]
     if '-h' in argv:
     	print('Job Submission Commands (run in a mounted directory):\n')
     	print('SRUN:\tistslurm <host> srun <srun arguments> <executable commands>')
     	print('SBATCH:\tistslurm <host> sbatch <sbatch arguments> "<executable command>"\n')
-    	print('\nOptional: add --key <path to a private key> in case an identity file is required\n')
     elif option == "sinfo":
     	sinfo = ' '.join(argv[2:])
     	os.system(f'sudo ssh {key_input} {host} -t "{sinfo}"')

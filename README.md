@@ -50,5 +50,5 @@ This command will generate an sbatch script according to the arguments given and
 See more available sbatch arguments: [https://slurm.schedmd.com/sbatch.html](https://slurm.schedmd.com/sbatch.html)
 
 Optional:
-- If a conda environment is required, add ``--env <environment name>`` (a conda environment must locate in /ist/ist-share/robotics/envs)
+- If a conda environment is required, add ``--env <environment name or an absolute path to an environment>`` (If an absolute path is not provided, it will access an environment with a matching name from /ist/ist-share/robotics/envs) 
 - If a private key is required for connection, add ``--key <path to private key>``
