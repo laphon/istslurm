@@ -16,19 +16,19 @@ Install the package:
 - Format: ``istslurm sinfo <sinfo arguments>``
 - Example: ``istslurm user@10.204.100.209 sinfo`` (logs partitions info)
 
-See more available sinfo arguments: [https://slurm.schedmd.com/sbatch.html](https://slurm.schedmd.com/sinfo.html)
+See more available sinfo arguments: [https://slurm.schedmd.com/sinfo.html](https://slurm.schedmd.com/sinfo.html)
 
 **squeue**
 - Format: ``istslurm squeue <squeue arguments>``
 - Example: ``istslurm user@10.204.100.209 squeue`` (logs all jobs info)
 
-See more available squeue arguments: [https://slurm.schedmd.com/sbatch.html](https://slurm.schedmd.com/squeue.html)
+See more available squeue arguments: [https://slurm.schedmd.com/squeue.html](https://slurm.schedmd.com/squeue.html)
 
 **scancel**
 - Format: ``istslurm scancel <scancel arguments>``
 - Example: ``istslurm user@10.204.100.209 scancel 12345`` (cancels job with id 12345)
 
-See more available scancel arguments: [https://slurm.schedmd.com/sbatch.html](https://slurm.schedmd.com/scancel.html)
+See more available scancel arguments: [https://slurm.schedmd.com/scancel.html](https://slurm.schedmd.com/scancel.html)
 
 ### Job Submission Commands
 To submit jobs, run these following commands in a mounted directory from IST frontend.
