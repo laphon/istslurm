@@ -10,7 +10,7 @@ Install the package:
 
 ## Usage
 
-### Slurm Controls Commands
+### Slurm Control Commands
 
 **sinfo**
 - Format: ``istslurm sinfo <sinfo arguments>``
