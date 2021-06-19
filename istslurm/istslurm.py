@@ -43,7 +43,6 @@ def create_sbatch_script(argv, command):
     sbatch_file = "#!/bin/sh\n"
     for i in range(0, len(argv), 2):
         sbatch_file += "#SBATCH " + argv[i] + "=" + argv[i + 1] + "\n"
-    sbatch_file += "cd " + remote_path() + "\n"
     sbatch_file += command
     return sbatch_file
 
@@ -68,35 +67,36 @@ def main():
     if "--key" in argv:
         key_path = get_arg(argv, "--key")
         key_input = "-i " + key_path
+    conda_activate = ''
+    if "--env" in argv:
+        env = get_arg(argv, "--env")
+        conda_activate = f'. /ist/apps/modules/software/Anaconda3/5.3.0/etc/profile.d/conda.sh; conda activate /ist/ist-share/robotics/laphonp/envs/{env};'
     host = argv[1]
     option = argv[2]
     if '-h' in argv:
     	print('Job Submission Commands (run in a mounted directory):\n')
-    	print('SRUN:\tistslurm <host> -srun <srun arguments> <executable commands>')
-    	print('SBATCH:\tistslurm <host> -sbatch "<executable command>" <sbatch arguments>\n')
+    	print('SRUN:\tistslurm <host> srun <srun arguments> <executable commands>')
+    	print('SBATCH:\tistslurm <host> sbatch <sbatch arguments> "<executable command>"\n')
     	print('\nOptional: add --key <path to a private key> in case an identity file is required\n')
-    elif option == "-sinfo":
-    	sinfo = ' '.join(argv[2:])[1:]
+    elif option == "sinfo":
+    	sinfo = ' '.join(argv[2:])
     	os.system(f'sudo ssh {key_input} {host} -t "{sinfo}"')
-    elif option == "-squeue":
-    	squeue = ' '.join(argv[2:])[1:]
+    elif option == "squeue":
+    	squeue = ' '.join(argv[2:])
     	os.system(f'sudo ssh {key_input} {host} -t "{squeue}"')
-    elif option == "-scancel":
-    	scancel = ' '.join(argv[2:])[1:]
+    elif option == "scancel":
+    	scancel = ' '.join(argv[2:])
     	os.system(f'sudo ssh {key_input} {host} -t "{scancel}"')
-    elif option == "-srun":
-        env = get_arg(argv, "--env")
+    elif option == "srun":
+        cd_command = f"cd {remote_path()};"
         srun_command = 'srun ' + ' '.join(argv[3:]) + ';'
-        cd_command = f"cd {remote_path()}"
-        command = f'. /ist/apps/modules/software/Anaconda3/5.3.0/etc/profile.d/conda.sh; conda activate /ist/ist-share/robotics/laphonp/envs/{env};{cd_command};{srun_command}'
         print(f'sudo ssh {key_input} {host} -t "{command}"')
-        os.system(f'sudo ssh {key_input} {host} -t "{command}"')
-    elif option == "-sbatch":
-    	env = get_arg(argv, "--env")
-    	command = f'. /ist/apps/modules/software/Anaconda3/5.3.0/etc/profile.d/conda.sh;\n conda activate /ist/ist-share/robotics/laphonp/envs/{env};\n{argv[3]}'
-    	sbatch_file = create_sbatch_script(argv[4:], command)
+        os.system(f'sudo ssh {key_input} {host} -t "{conda_activate} {cd_command} {srun_command}"')
+    elif option == "sbatch":
+    	command = f'{conda_activate}\n{cd_command}\n{argv[-1]}\n'
+    	sbatch_file = create_sbatch_script(argv[3:-1], command)
     	print(f"\nSBATCH SCRIPT: \n\n{sbatch_file}\n\n")
     	os.system(f'sudo ssh {key_input} {host} -t "sbatch <<< ' + f"'{sbatch_file}'\"")
-
+kk-
 if __name__ == "__main__":
     main()
