@@ -92,13 +92,11 @@ def main():
     elif option == "srun":
         cd_command = f"cd {remote_path()};"
         srun_command = 'srun ' + ' '.join(argv[3:]) + ';'
-        print(f'sudo ssh {key_input} {host} -t "{command}"')
         os.system(f'ssh {key_input} {host} -t "{conda_activate} {cd_command} {srun_command}"')
     elif option == "sbatch":
     	cd_command = f"cd {remote_path()};"
     	command = f'{conda_activate}\n{cd_command}\n{argv[-1]}\n'
     	sbatch_file = create_sbatch_script(argv[3:-1], command)
-    	print(f"\nSBATCH SCRIPT: \n\n{sbatch_file}\n\n")
     	os.system(f'ssh {key_input} {host} -t "sbatch <<< ' + f"'{sbatch_file}'\"")
     '''
     elif option == "sinteractive":
