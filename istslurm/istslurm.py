@@ -82,24 +82,32 @@ def main():
     	print('SBATCH:\tistslurm <host> sbatch <sbatch arguments> "<executable command>"\n')
     elif option == "sinfo":
     	sinfo = ' '.join(argv[2:])
-    	os.system(f'sudo ssh {key_input} {host} -t "{sinfo}"')
+    	os.system(f'ssh {key_input} {host} -t "{sinfo}"')
     elif option == "squeue":
     	squeue = ' '.join(argv[2:])
-    	os.system(f'sudo ssh {key_input} {host} -t "{squeue}"')
+    	os.system(f'ssh {key_input} {host} -t "{squeue}"')
     elif option == "scancel":
     	scancel = ' '.join(argv[2:])
-    	os.system(f'sudo ssh {key_input} {host} -t "{scancel}"')
+    	os.system(f'ssh {key_input} {host} -t "{scancel}"')
     elif option == "srun":
         cd_command = f"cd {remote_path()};"
         srun_command = 'srun ' + ' '.join(argv[3:]) + ';'
         print(f'sudo ssh {key_input} {host} -t "{command}"')
-        os.system(f'sudo ssh {key_input} {host} -t "{conda_activate} {cd_command} {srun_command}"')
+        os.system(f'ssh {key_input} {host} -t "{conda_activate} {cd_command} {srun_command}"')
     elif option == "sbatch":
     	cd_command = f"cd {remote_path()};"
     	command = f'{conda_activate}\n{cd_command}\n{argv[-1]}\n'
     	sbatch_file = create_sbatch_script(argv[3:-1], command)
     	print(f"\nSBATCH SCRIPT: \n\n{sbatch_file}\n\n")
-    	os.system(f'sudo ssh {key_input} {host} -t "sbatch <<< ' + f"'{sbatch_file}'\"")
+    	os.system(f'ssh {key_input} {host} -t "sbatch <<< ' + f"'{sbatch_file}'\"")
+    '''
+    elif option == "sinteractive":
+        cd_command = f"cd {remote_path()};"
+        command = f'{conda_activate}{cd_command}{argv[-1]}'
+        sinteractive_args = ' '.join(argv[3:-1])
+        print(f'sudo ssh {key_input} {host} -t "{conda_activate} {cd_command} sinteractive {sinteractive_args}; {argv[-1]}"')
+        os.system(f'sudo ssh {key_input} {host} -t "{conda_activate} {cd_command} sinteractive {sinteractive_args}; {argv[-1]}"')
+    '''
 
 if __name__ == "__main__":
     main()
